@@ -102,12 +102,38 @@ namespace DriftNewsParser.ViewModels
                             finally {}
                         }
                         foreach(var driver in Drivers)
-                            await Console.Out.WriteLineAsync(driver.Name);
-                        ///Ya Pomenyal///X@
+                            await Console.Out.WriteLineAsync(driver.Name);  
                     }
                     else if (SelectedCategory == "News")
                     {
-
+                        List<News> newsList = new List<News>();
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        
+                        for(int i = 1; i <= 5; i++)
+                        {
+                            var url = $"https://vdrifte.ru/news/?page={i}";
+                            var doc = await context.OpenAsync(url);
+                            for(int j = 0; j < 5; j++)
+                            {
+                                News news = new News();
+                                news.Date = doc.GetElementsByClassName("col-md-9")[0].
+                                GetElementsByClassName("b_list_item")[j].
+                                GetElementsByClassName("_date helios")[0].TextContent.Trim();
+                                news.Title = doc.GetElementsByClassName("col-md-9")[0].
+                                GetElementsByClassName("b_list_item")[j].
+                                GetElementsByClassName("_title helios")[0].TextContent.Trim();
+                                news.ImgUrl = "https://vdrifte.ru" + doc.GetElementsByClassName("col-md-9")[0].
+                                GetElementsByClassName("b_list_item")[j].
+                                GetElementsByClassName("img-responsive")[0].GetAttribute("src");
+                                //var newsDescription = doc.GetElementsByClassName("col-md-9")[0].
+                                //GetElementsByClassName("b_list_item")[j];
+                                news.Url = "https://vdrifte.ru" + doc.GetElementsByClassName("col-md-9")[0].
+                                GetElementsByClassName("b_list_item")[j].
+                                GetElementsByClassName("_img")[0].GetAttribute("href");
+                                newsList.Add(news);
+                            }
+                            
+                        }
                     }
                     break;
                 default:
