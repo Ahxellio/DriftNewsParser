@@ -135,6 +135,10 @@ namespace DriftNewsParser.ViewModels
                             
                         }
                     }
+                    else if (SelectedCategory == "Results")
+                    {
+
+                    }
                     break;
                 default:
                     break;

@@ -14,11 +14,15 @@
         <ComboBox Width="120" Height="40" Margin="5,5,5,5" 
                   HorizontalAlignment="Left" VerticalAlignment="Center"
                   ItemsSource="{Binding Championships}" SelectedItem="{Binding SelectedChampionship}"
-                  FontWeight="DemiBold"></ComboBox>
+                  FontWeight="DemiBold" FontSize="14"
+                  VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+        </ComboBox>
         <ComboBox Width="120" Height="40" Margin="140,5,5,5" 
                   HorizontalAlignment="Left" VerticalAlignment="Center" 
                   ItemsSource="{Binding Category}" SelectedItem="{Binding SelectedCategory}"
-                  FontWeight="DemiBold"></ComboBox>
+                  FontWeight="DemiBold" FontSize="14"
+                  VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+        </ComboBox>
         <Button Command="{Binding ParseCommand}" Width="120" Height="40" Content="Parse" FontWeight="DemiBold" FontSize="22"></Button>
 
     </Grid>
