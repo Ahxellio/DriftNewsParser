@@ -79,7 +79,7 @@ namespace DriftNewsParser.ViewModels
                                 ImgSrc = pilotImgSrc,
                                 Number = pilotNumber,
                                 Name = pilotName,
-                                Championship = ChampionshipCategory.RDS,
+                                Championship = "RDS",
                             });
                         }
                         foreach(var driver in Drivers)

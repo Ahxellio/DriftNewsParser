@@ -23,10 +23,8 @@ namespace DriftNewsParser.Models
         [Required]
         public string ImgSrc { get; set; }
 
-        [ForeignKey(nameof(Championship))]
-        public int ChampionshipId { get; set; }
         [Required]
-        public ChampionshipCategory Championship { get; set; }
+        public string Championship { get; set; }
 
     }
 }

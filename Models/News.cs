@@ -21,6 +21,8 @@ namespace DriftNewsParser.Models
         public string Date { get; set; }
         [Required]
         public string ImgUrl { get; set; }
+        [Required]
+        public string Championship { get; set; }
 
     }
 }

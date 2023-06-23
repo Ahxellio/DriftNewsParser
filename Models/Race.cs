@@ -13,10 +13,7 @@ namespace DriftNewsParser.Models
         public string Country { get; set; }
         [Required]
         public string City { get; set; }
-
-        [ForeignKey(nameof(Championship))]
-        public int ChampionshipId { get; set; }
         [Required]
-        public Championship Championship { get; set; }
+        public string Championship { get; set; }
     }
 }
