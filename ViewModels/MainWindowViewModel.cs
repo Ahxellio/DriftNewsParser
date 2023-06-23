@@ -1,5 +1,6 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
+using DriftNews.Data;
 using DriftNewsParser.Data.Enum;
 using DriftNewsParser.Infrastructure;
 using DriftNewsParser.Models;
@@ -9,12 +10,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace DriftNewsParser.ViewModels
 {
+    
     public class MainWindowViewModel : BaseVM
     {
+        private readonly ApplicationDbContext _db;
         private List<string> _Championships = new List<string> { "RDS", "DMEC", "Formula Drift" };
         public List<string> Championships
         {
@@ -81,16 +85,14 @@ namespace DriftNewsParser.ViewModels
                         foreach(var driver in Drivers)
                         {
                             var pilotProfile = await context.OpenAsync(driver.Href);
-                            Car car = new Car();
-                            car.CarBrand = pilotProfile.GetElementsByClassName("pilot-profile__wrapper-col-right")[0]
+                            driver.CarName = pilotProfile.GetElementsByClassName("pilot-profile__wrapper-col-right")[0]
                                 .GetElementsByClassName("pilot-profile__car-data-n-thumbs")[0].
                                 GetElementsByClassName("pilot-profile__car-data-title")[0].TextContent.Trim();
-                            car.Engine = pilotProfile.GetElementsByClassName("pilot-profile__wrapper-col-right")[0]
+                            driver.CarEngine = pilotProfile.GetElementsByClassName("pilot-profile__wrapper-col-right")[0]
                                 .GetElementsByClassName("pilot-profile__car-data-n-thumbs")[0].
                                 GetElementsByClassName("pilot-profile__car-data-item")[0]
                                 .GetElementsByClassName("pilot-profile__car-data-val")[0]
                                 .TextContent.Trim();
-                            driver.Car = car;
                             try
                             {
                                 driver.Team = pilotProfile.GetElementsByClassName("pilot-profile__wrapper-col-left")[0]
@@ -101,8 +103,10 @@ namespace DriftNewsParser.ViewModels
                             catch (Exception ex) { driver.Team = "No Team"; }
                             finally {}
                         }
-                        foreach(var driver in Drivers)
-                            await Console.Out.WriteLineAsync(driver.Name);  
+                        foreach (var driver in Drivers)
+                            await _db.Drivers.AddAsync(driver); 
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("Added Drivers");
                     }
                     else if (SelectedCategory == "News")
                     {
@@ -145,8 +149,9 @@ namespace DriftNewsParser.ViewModels
             }
         }
         private bool CanParseCommandExecute(object p) => true;
-        public MainWindowViewModel()
+        public MainWindowViewModel(ApplicationDbContext db)
         {
+            _db = db;    
             ParseCommand = new LambdaCommand(OnParseCommandExecuted, CanParseCommandExecute);
         }
     }

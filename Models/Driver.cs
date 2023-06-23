@@ -11,7 +11,9 @@ namespace DriftNewsParser.Models
         [Required]
         public string Name { get; set; }
         [Required]
-        public Car Car { get; set; }
+        public string CarName { get; set; }
+        [Required]
+        public string CarEngine { get; set; }
         [Required]
         public string Number { get; set; }
 

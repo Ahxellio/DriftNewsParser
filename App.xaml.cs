@@ -1,5 +1,7 @@
 ﻿using DriftNewsParser.Data;
+using DriftNewsParser.Infrastructure;
 using DriftNewsParser.Models;
+using DriftNewsParser.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -20,10 +22,15 @@ namespace DriftNewsParser
         public static IServiceProvider Services => Host.Services;
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             .AddDatabase(host.Configuration)
+            .AddServices()
+            .AddViewModels()
             ;
+        [STAThread]
         protected override async void OnStartup(StartupEventArgs e)
         {
             var host = Host;
+            using (var scope = Services.CreateScope())
+                await scope.ServiceProvider.GetRequiredService<DbInitializer>().InitializeAsync();
             base.OnStartup(e);
             await host.StartAsync();
         }
