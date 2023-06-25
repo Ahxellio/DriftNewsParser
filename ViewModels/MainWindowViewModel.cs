@@ -134,14 +134,219 @@ namespace DriftNewsParser.ViewModels
                                 news.Url = "https://vdrifte.ru" + doc.GetElementsByClassName("col-md-9")[0].
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("_img")[0].GetAttribute("href");
+                                news.Championship = "RDS";
                                 newsList.Add(news);
                             }
+
                             
                         }
+                        await _db.News.AddRangeAsync(newsList);
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("News Updated");
                     }
                     else if (SelectedCategory == "Results")
                     {
+                        List<ResultsRDS> results = new List<ResultsRDS>();
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        var url = "https://vdrifte.ru/results/rdsgp2023/";
+                        var doc = await context.OpenAsync(url);
+                        for (int i = 0; i < 15; i++)
+                        {
+                            ResultsRDS result = new ResultsRDS();
+                            result.Place = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                .GetElementsByClassName("place")[0].TextContent.Trim();
+                            result.CarNumber = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                .GetElementsByClassName("car-n")[0].TextContent.Trim();
+                            result.Name = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                .GetElementsByClassName("name")[0].TextContent.Trim();
+                            result.ProfileUrl = "https://vdrifte.ru" + doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                .GetElementsByClassName("name")[0].GetElementsByTagName("a")[0].GetAttribute("href");
+                            try
+                            {
+                                result.Q1 = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                .GetElementsByClassName("standart")[0].TextContent.Trim();
+                                result.R1 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[1].TextContent.Trim();
+                                result.Q2 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[2].TextContent.Trim();
+                                result.R2 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[3].TextContent.Trim();
+                                result.Q3 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                result.R3 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                result.Q4 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                result.R4 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                result.Q5 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                result.R5 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                result.Q6 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                result.R6 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                            }
+                            catch (Exception ex )
+                            {
+                                if (result.Q1 == null)
+                                {
+                                    result.Q1 = "0";
+                                    result.R1 = "0";
+                                }
+                                else if (result.Q2 == null)
+                                {
+                                    result.Q2 = "0";
+                                    result.R2 = "0";
+                                }
+                                else if (result.Q3 == null)
+                                {
+                                    result.Q3 = "0";
+                                    result.R3 = "0";
+                                }
+                                else if (result.Q4 == null)
+                                {
+                                    result.Q4 = "0";
+                                    result.R4 = "0";
+                                }
+                                else if (result.Q5 == null)
+                                {
+                                    result.Q5 = "0";
+                                    result.R5 = "0";
+                                }
+                                else if (result.Q6 == null)
+                                {
+                                    result.Q6 = "0";
+                                    result.R6 = "0";
+                                }
 
+
+                            }
+                            finally { }
+                            
+                            result.AllPoints = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
+                                .GetElementsByClassName("last")[0].TextContent.Trim();
+
+                            //Second  Driver 
+
+                            ResultsRDS result2 = new ResultsRDS();
+                            result2.Place = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                .GetElementsByClassName("place")[0].TextContent.Trim();
+                            result2.CarNumber = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                .GetElementsByClassName("car-n")[0].TextContent.Trim();
+                            result2.Name = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                .GetElementsByClassName("name")[0].TextContent.Trim();
+                            result2.ProfileUrl = "https://vdrifte.ru" + doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                .GetElementsByClassName("name")[0].GetElementsByTagName("a")[0].GetAttribute("href");
+                            try
+                            {
+                                result2.Q1 = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                .GetElementsByClassName("standart")[0].TextContent.Trim();
+                                result2.R1 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[1].TextContent.Trim();
+                                result2.Q2 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[2].TextContent.Trim();
+                                result2.R2 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[3].TextContent.Trim();
+                                result2.Q3 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                result2.R3 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                result2.Q4 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[6].TextContent.Trim();
+                                result2.R4 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[7].TextContent.Trim();
+                                result2.Q5 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[8].TextContent.Trim();
+                                result2.R5 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[9].TextContent.Trim();
+                                result2.Q6 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[10].TextContent.Trim();
+                                result2.R6 = doc.GetElementsByClassName("b_results")[0]
+                                    .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                    .GetElementsByClassName("standart")[11].TextContent.Trim();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (result2.Q1 == null)
+                                {
+                                    result2.Q1 = "0";
+                                    result2.R1 = "0";
+                                }
+                                else if (result2.Q2 == null)
+                                {
+                                    result2.Q2 = "0";
+                                    result2.R2 = "0";
+                                }
+                                else if (result2.Q3 == null)
+                                {
+                                    result2.Q3 = "0";
+                                    result2.R3 = "0";
+                                }
+                                else if (result2.Q4 == null)
+                                {
+                                    result2.Q4 = "0";
+                                    result2.R4 = "0";
+                                }
+                                else if (result2.Q5 == null)
+                                {
+                                    result2.Q5 = "0";
+                                    result2.R5 = "0";
+                                }
+                                else if (result2.Q6 == null)
+                                {
+                                    result2.Q6 = "0";
+                                    result2.R6 = "0";
+                                }
+
+
+                            }
+                            finally { }
+
+                            result2.AllPoints = doc.GetElementsByClassName("b_results")[0]
+                                .GetElementsByClassName("rating")[0].GetElementsByClassName("lt-clr")[i]
+                                .GetElementsByClassName("last")[0].TextContent.Trim();
+                            results.Add(result);
+                            results.Add(result2);
+
+                        }
+                        await _db.ResultsRDS.AddRangeAsync(results);
+                        await _db.  SaveChangesAsync();
+                        MessageBox.Show("Results Updated");
+                        
                     }
                     break;
                 default:
