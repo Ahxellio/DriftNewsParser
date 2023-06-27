@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DriftNewsParser.Models
 {
-    public class News
+    public class NewsRDS
     {
         [Key]
         public int Id { get; set; }

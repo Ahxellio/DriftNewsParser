@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DriftNewsParser.Models
 {
-    public class Driver
+    public class DriversRDS
     {
         [Key]
         public int Id { get; set; }

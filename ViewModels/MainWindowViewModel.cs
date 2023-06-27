@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using static System.Net.WebRequestMethods;
 
 namespace DriftNewsParser.ViewModels
 {
@@ -55,7 +56,7 @@ namespace DriftNewsParser.ViewModels
                         var url = "https://vdrifte.ru/pilots/";
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         var doc = await context.OpenAsync(url);
-                        List<Driver> Drivers = new List<Driver> ();
+                        List<DriversRDS> Drivers = new List<DriversRDS> ();
                         for(var i = 0; i < 30; i++)
                         {
                             var pilotHref = "https://vdrifte.ru" + doc.GetElementsByClassName("pilots-list")[0]
@@ -73,7 +74,7 @@ namespace DriftNewsParser.ViewModels
                             var pilotNumber = doc.GetElementsByClassName("pilots-list")[0]
                                 .GetElementsByClassName("pilots-list__item-wrapper")[i]
                                 .GetElementsByClassName("pilots-list__item-num")[0].TextContent.Trim();
-                            Drivers.Add(new Driver
+                            Drivers.Add(new DriversRDS
                             {
                                 Href = pilotHref,
                                 ImgSrc = pilotImgSrc,
@@ -110,7 +111,7 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
-                        List<News> newsList = new List<News>();
+                        List<NewsRDS> newsList = new List<NewsRDS>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         
                         for(int i = 1; i <= 5; i++)
@@ -119,7 +120,7 @@ namespace DriftNewsParser.ViewModels
                             var doc = await context.OpenAsync(url);
                             for(int j = 0; j < 5; j++)
                             {
-                                News news = new News();
+                                NewsRDS news = new NewsRDS();
                                 news.Date = doc.GetElementsByClassName("col-md-9")[0].
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("_date helios")[0].TextContent.Trim();
@@ -344,9 +345,226 @@ namespace DriftNewsParser.ViewModels
 
                         }
                         await _db.ResultsRDS.AddRangeAsync(results);
-                        await _db.  SaveChangesAsync();
+                        await _db.SaveChangesAsync();
                         MessageBox.Show("Results Updated");
                         
+                    }
+                    break;
+                case ("DMEC"):
+                    if (SelectedCategory == "Pilots")
+                    { await _db.SaveChangesAsync(); }
+                    break;
+                case ("Formula Drift"):
+                    if (SelectedCategory == "Results")
+                    {
+                        var url = "https://www.formulad.com/standings/2023/pro";
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        var doc = await context.OpenAsync(url);
+                        List<ResultsFDPRO> Results = new List<ResultsFDPRO>();
+                        for(int i = 0; i < 18; i++)
+                        {
+                            ResultsFDPRO result = new ResultsFDPRO();
+                            result.ProfileUrl = "https://www.formulad.com" + doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("odd")[i]
+                                .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0]
+                                .GetAttribute("href");
+                            result.Place = doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("odd")[i]
+                                .GetElementsByTagName("td")[0].TextContent.Trim();
+                            result.CarNumber = doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("odd")[i]
+                                .GetElementsByTagName("td")[1].TextContent.Trim();
+                            result.Name = doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("odd")[i]
+                                .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0].TextContent.Trim();
+                            result.AllPoints = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByClassName("TotalText")[0].TextContent.Trim();
+                            try
+                            {
+                                result.R1 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByClassName("is-desktop-only")[0].TextContent.Trim();
+                                result.R2 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByClassName("is-desktop-only")[1].TextContent.Trim();
+                                result.R3 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByClassName("is-desktop-only")[2].TextContent.Trim();
+                                result.R4 = doc.GetElementsByTagName("tbody")[0]
+                                        .GetElementsByClassName("odd")[i]
+                                        .GetElementsByClassName("is-desktop-only")[3].TextContent.Trim();
+                                result.R5 = doc.GetElementsByTagName("tbody")[0]
+                                        .GetElementsByClassName("odd")[i]
+                                        .GetElementsByClassName("is-desktop-only")[4].TextContent.Trim();
+                                result.R6 = doc.GetElementsByTagName("tbody")[0]
+                                        .GetElementsByClassName("odd")[i]
+                                        .GetElementsByClassName("is-desktop-only")[5].TextContent.Trim();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (result.R1 == null)
+                                {
+                                    result.R1 = "0";
+                                }
+                                else if (result.R2 == null)
+                                {
+                                    result.R2 = "0";
+                                }
+                                else if (result.R3 == null)
+                                {
+                                    result.R3 = "0";
+                                }
+                                else if (result.R4 == null)
+                                {
+                                    result.R4 = "0";
+                                }
+                                else if (result.R5 == null)
+                                {
+                                    result.R5 = "0";
+                                }
+                                else if (result.R6 == null)
+                                {
+                                    result.R6 = "0";
+                                }
+                            }
+                            finally { }
+
+                            //Second Driver
+
+                            ResultsFDPRO result2 = new ResultsFDPRO();
+                            result2.ProfileUrl = "https://www.formulad.com" + doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("even")[i]
+                                .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0]
+                                .GetAttribute("href");
+                            result2.Place = doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("even")[i]
+                                .GetElementsByTagName("td")[0].TextContent.Trim();
+                            result2.CarNumber = doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("even")[i]
+                                .GetElementsByTagName("td")[1].TextContent.Trim();
+                            result2.Name = doc.GetElementsByTagName("tbody")[0]
+                                .GetElementsByClassName("even")[i]
+                                .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0].TextContent.Trim();
+                            result2.AllPoints = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("TotalText")[0].TextContent.Trim();
+                            try
+                            {
+                                result2.R1 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("is-desktop-only")[0].TextContent.Trim();
+                                result2.R2 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("is-desktop-only")[1].TextContent.Trim();
+                                result2.R3 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("is-desktop-only")[2].TextContent.Trim();
+                                result2.R4 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("is-desktop-only")[3].TextContent.Trim();
+                                result2.R5 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("is-desktop-only")[4].TextContent.Trim();
+                                result2.R6 = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("is-desktop-only")[5].TextContent.Trim();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (result2.R1 == null)
+                                {
+                                    result2.R1 = "0";
+                                }
+                                else if (result2.R2 == null)
+                                {
+                                    result2.R2 = "0";
+                                }
+                                else if (result2.R3 == null)
+                                {
+                                    result2.R3 = "0";
+                                }
+                                else if (result2.R4 == null)
+                                {
+                                    result2.R4 = "0";
+                                }
+                                else if (result2.R5 == null)
+                                {
+                                    result2.R5 = "0";
+                                }
+                                else if (result2.R6 == null)
+                                {
+                                    result2.R6 = "0";
+                                }
+                            }
+                            finally { }
+
+                            Results.Add(result);
+                            Results.Add(result2);
+                        }
+                        await _db.ResultsFDPRO.AddRangeAsync(Results);
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("Results Added");
+                    }
+                    else if (SelectedCategory == "Pilots")
+                    {
+                        var url = "https://www.formulad.com/standings/2023/pro";
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        var doc = await context.OpenAsync(url);
+                        List<DriversFDPRO> Drivers = new List<DriversFDPRO>();
+                        for(int i = 0; i < 18; i++)
+                        {
+                            DriversFDPRO driver1 = new DriversFDPRO();
+                            DriversFDPRO driver2 = new DriversFDPRO();
+                            driver1.Href = "https://www.formulad.com" + doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0]
+                                            .GetAttribute("href");
+                            driver1.Name = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0].TextContent.Trim();
+                            driver1.Number = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByTagName("td")[1].TextContent.Trim();
+                            driver2.Href = "https://www.formulad.com" + doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0]
+                                            .GetAttribute("href");
+                            driver2.Name = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0].TextContent.Trim();
+                            driver2.Number = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("even")[i]
+                                            .GetElementsByTagName("td")[1].TextContent.Trim();
+                            Drivers.Add(driver1);
+                            Drivers.Add(driver2);
+                        }
+                        foreach(var driver in Drivers)
+                        {
+                            var pilotProfile = await context.OpenAsync(driver.Href);
+                            driver.ImgSrc = "https://www.formulad.com" + pilotProfile.GetElementsByClassName("driver-headshot")[0]
+                                            .GetElementsByClassName("headshot")[0].GetElementsByTagName("img")[0]
+                                            .GetAttribute("src");
+                            driver.Age = pilotProfile.GetElementsByClassName("col-12 col-lg-4")[0]
+                                        .GetElementsByClassName("sidebar-driver-info")[0]
+                                        .GetElementsByClassName("information")[0].TextContent.Trim();
+                            driver.Team = pilotProfile.GetElementsByClassName("col-12 col-lg-4")[0]
+                                .GetElementsByClassName("sidebar-driver-info")[1].GetElementsByClassName("information")[0]
+                                .TextContent.Trim();
+                            driver.CarName = pilotProfile.GetElementsByClassName("col-12 col-lg-4")[0]
+                                .GetElementsByClassName("sidebar-driver-info")[1].GetElementsByClassName("information")[1]
+                                .TextContent.Trim();
+                            driver.Sponsors = pilotProfile.GetElementsByClassName("col-12 col-lg-4")[0]
+                                .GetElementsByClassName("sidebar-driver-info")[1].GetElementsByClassName("information")[2]
+                                .TextContent.Trim();
+                            driver.Championship = "Formula Drift";
+                            driver.Hometown = pilotProfile.GetElementsByClassName("col-12 col-lg-4")[0]
+                                        .GetElementsByClassName("sidebar-driver-info")[0]
+                                        .GetElementsByClassName("information")[1].TextContent.Trim();
+                        }
+                        await _db.DriversFD.AddRangeAsync(Drivers);
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("Drivers Added");
                     }
                     break;
                 default:
