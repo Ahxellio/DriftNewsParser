@@ -5,6 +5,7 @@ using DriftNewsParser.Data.Enum;
 using DriftNewsParser.Infrastructure;
 using DriftNewsParser.Models;
 using DriftNewsParser.ViewModels.Base;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,7 +106,21 @@ namespace DriftNewsParser.ViewModels
                             finally {}
                         }
                         foreach (var driver in Drivers)
-                            await _db.Drivers.AddAsync(driver); 
+                        {
+                            var entity = _db.Drivers.FirstOrDefault(item => item.Number == driver.Number);
+                            if (entity == null)
+                            {
+                                _db.Drivers.Add(driver);
+                            }
+                            else
+                            {
+                                entity.CarName = driver.CarName;
+                                entity.CarEngine = driver.CarEngine;
+                                entity.Team = driver.Team;
+                                entity.ImgSrc = driver.ImgSrc;
+                               
+                            }
+                        }
                         await _db.SaveChangesAsync();
                         MessageBox.Show("Added Drivers");
                     }
@@ -141,7 +156,21 @@ namespace DriftNewsParser.ViewModels
 
                             
                         }
-                        await _db.News.AddRangeAsync(newsList);
+                        foreach (var news in newsList)
+                        {
+                            var entity = _db.News.FirstOrDefault(item => item.Title == news.Title);
+                            if (entity == null)
+                            {
+                                _db.News.Add(news);
+                            }
+                            else
+                            {
+                                entity.Title = news.Title;
+                                entity.Url = news.Url;
+                                entity.Date = news.Date;
+                                entity.ImgUrl = news.ImgUrl;
+                            }
+                        }
                         await _db.SaveChangesAsync();
                         MessageBox.Show("News Updated");
                     }
@@ -188,22 +217,22 @@ namespace DriftNewsParser.ViewModels
                                     .GetElementsByClassName("standart")[5].TextContent.Trim();
                                 result.Q4 = doc.GetElementsByClassName("b_results")[0]
                                     .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
-                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                    .GetElementsByClassName("standart")[6].TextContent.Trim();
                                 result.R4 = doc.GetElementsByClassName("b_results")[0]
                                     .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
-                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                    .GetElementsByClassName("standart")[7].TextContent.Trim();
                                 result.Q5 = doc.GetElementsByClassName("b_results")[0]
                                     .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
-                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                    .GetElementsByClassName("standart")[8].TextContent.Trim();
                                 result.R5 = doc.GetElementsByClassName("b_results")[0]
                                     .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
-                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                    .GetElementsByClassName("standart")[9].TextContent.Trim();
                                 result.Q6 = doc.GetElementsByClassName("b_results")[0]
                                     .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
-                                    .GetElementsByClassName("standart")[4].TextContent.Trim();
+                                    .GetElementsByClassName("standart")[10].TextContent.Trim();
                                 result.R6 = doc.GetElementsByClassName("b_results")[0]
                                     .GetElementsByClassName("rating")[0].GetElementsByClassName("dark-clr")[i]
-                                    .GetElementsByClassName("standart")[5].TextContent.Trim();
+                                    .GetElementsByClassName("standart")[11].TextContent.Trim();
                             }
                             catch (Exception ex )
                             {
@@ -344,7 +373,33 @@ namespace DriftNewsParser.ViewModels
                             results.Add(result2);
 
                         }
-                        await _db.ResultsRDS.AddRangeAsync(results);
+                        foreach (var result in results)
+                        {
+                            var entity = _db.ResultsRDS.FirstOrDefault(item => item.CarNumber == result.CarNumber);
+                            if (entity == null)
+                            {
+                                _db.ResultsRDS.Add(result);
+                            }
+                            else
+                            {
+                                entity.Q1 = result.Q1;
+                                entity.Q2 = result.Q2;
+                                entity.Q3 = result.Q3;
+                                entity.Q4 = result.Q4;
+                                entity.Q5 = result.Q5;
+                                entity.Q6 = result.Q6;
+                                entity.Q7 = result.Q7;
+                                entity.R1 = result.R1;
+                                entity.R2 = result.R2;
+                                entity.R3 = result.R3;
+                                entity.R4 = result.R4;
+                                entity.R5 = result.R5;
+                                entity.R6 = result.R6;
+                                entity.R7 = result.R7;
+                                entity.AllPoints = result.AllPoints;
+                                entity.Place = result.Place;
+                            }
+                        }
                         await _db.SaveChangesAsync();
                         MessageBox.Show("Results Updated");
                         
@@ -502,7 +557,26 @@ namespace DriftNewsParser.ViewModels
                             Results.Add(result);
                             Results.Add(result2);
                         }
-                        await _db.ResultsFDPRO.AddRangeAsync(Results);
+                        foreach (var result in Results)
+                        {
+                            var entity = _db.ResultsFDPRO.FirstOrDefault(item => item.CarNumber == result.CarNumber);
+                            if (entity == null)
+                            {
+                                _db.ResultsFDPRO.Add(result);
+                            }
+                            else
+                            {
+                                entity.R1 = result.R1;
+                                entity.R2 = result.R2;
+                                entity.R3 = result.R3;
+                                entity.R4 = result.R4;
+                                entity.R5 = result.R5;
+                                entity.R6 = result.R6;
+                                entity.R7 = result.R7;
+                                entity.AllPoints = result.AllPoints;
+                                entity.Place = result.Place;
+                            }
+                        }
                         await _db.SaveChangesAsync();
                         MessageBox.Show("Results Added");
                     }
@@ -516,6 +590,11 @@ namespace DriftNewsParser.ViewModels
                         {
                             DriversFDPRO driver1 = new DriversFDPRO();
                             DriversFDPRO driver2 = new DriversFDPRO();
+                            driver1.Number = doc.GetElementsByTagName("tbody")[0]
+                                            .GetElementsByClassName("odd")[i]
+                                            .GetElementsByTagName("td")[1].TextContent.Trim();
+                            var result = _db.DriversFDPRO.Find(driver1.Number);
+                            if (result == null)
                             driver1.Href = "https://www.formulad.com" + doc.GetElementsByTagName("tbody")[0]
                                             .GetElementsByClassName("odd")[i]
                                             .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0]
@@ -523,9 +602,7 @@ namespace DriftNewsParser.ViewModels
                             driver1.Name = doc.GetElementsByTagName("tbody")[0]
                                             .GetElementsByClassName("odd")[i]
                                             .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0].TextContent.Trim();
-                            driver1.Number = doc.GetElementsByTagName("tbody")[0]
-                                            .GetElementsByClassName("odd")[i]
-                                            .GetElementsByTagName("td")[1].TextContent.Trim();
+                            
                             driver2.Href = "https://www.formulad.com" + doc.GetElementsByTagName("tbody")[0]
                                             .GetElementsByClassName("even")[i]
                                             .GetElementsByClassName("text-left")[0].GetElementsByTagName("a")[0]
@@ -562,15 +639,32 @@ namespace DriftNewsParser.ViewModels
                                         .GetElementsByClassName("sidebar-driver-info")[0]
                                         .GetElementsByClassName("information")[1].TextContent.Trim();
                         }
-                        await _db.DriversFD.AddRangeAsync(Drivers);
+                        foreach (var driver in Drivers)
+                        {
+                            var entity = _db.DriversFDPRO.FirstOrDefault(item => item.Number == driver.Number);
+                            if (entity == null)
+                            {
+                                _db.DriversFDPRO.Add(driver);
+                            }
+                            else
+                            {
+                                entity.Sponsors = driver.Sponsors;
+                                entity.CarName = driver.CarName;
+                                entity.Age = driver.Age;
+                                entity.Href = driver.Href;
+                                entity.Team = driver.Team;
+                                entity.Name = driver.Name;
+                            }
+                        }
                         await _db.SaveChangesAsync();
-                        MessageBox.Show("Drivers Added");
+                        MessageBox.Show("Drivers Updated");
                     }
                     break;
                 default:
                     break;
             }
         }
+
         private bool CanParseCommandExecute(object p) => true;
         public MainWindowViewModel(ApplicationDbContext db)
         {
