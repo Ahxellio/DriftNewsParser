@@ -19,7 +19,7 @@ namespace DriftNewsParser.Data
         public async Task InitializeAsync() 
         {
             await _db.Database.MigrateAsync().ConfigureAwait(false);
-            if (await _db.Drivers.AnyAsync()) return;
+            if (await _db.DriversRDS.AnyAsync()) return;
 
         }
     }

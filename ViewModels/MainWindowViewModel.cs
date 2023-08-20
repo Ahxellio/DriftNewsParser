@@ -107,10 +107,10 @@ namespace DriftNewsParser.ViewModels
                         }
                         foreach (var driver in Drivers)
                         {
-                            var entity = _db.Drivers.FirstOrDefault(item => item.Number == driver.Number);
+                            var entity = _db.DriversRDS.FirstOrDefault(item => item.Number == driver.Number);
                             if (entity == null)
                             {
-                                _db.Drivers.Add(driver);
+                                _db.DriversRDS.Add(driver);
                             }
                             else
                             {
@@ -158,10 +158,10 @@ namespace DriftNewsParser.ViewModels
                         }
                         foreach (var news in newsList)
                         {
-                            var entity = _db.News.FirstOrDefault(item => item.Title == news.Title);
+                            var entity = _db.NewsRDS.FirstOrDefault(item => item.Title == news.Title);
                             if (entity == null)
                             {
-                                _db.News.Add(news);
+                                _db.NewsRDS.Add(news);
                             }
                             else
                             {
