@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +21,20 @@ namespace DriftNewsParser.ViewModels
     
     public class MainWindowViewModel : BaseVM
     {
+        Dictionary<int, string> DefaultFdImages = new Dictionary<int, string>()
+        {
+            {1, "https://news.formulad.com/wordpress/wp-content/uploads/2023/08/FD23_GOPRO_PHOTOS-27.png" },
+            {2, "https://news.formulad.com/wordpress/wp-content/uploads/2023/08/FD23_GOPRO_PHOTOS-6-copy.png" },
+            {3, "https://news.formulad.com/wordpress/wp-content/uploads/2023/08/FD23_GOPRO_PHOTOS-3-2.png" },
+            {4, "https://news.formulad.com/wordpress/wp-content/uploads/2023/08/Field-728x485.jpg" },
+            {5, "https://news.formulad.com/wordpress/wp-content/uploads/2023/08/Bakchis-728x485.jpg" },
+            {6, "https://news.formulad.com/wordpress/wp-content/uploads/2023/07/Hobson-Hateley-Final.jpeg" },
+            {7, "https://news.formulad.com/wordpress/wp-content/uploads/2023/07/Taguchi.jpeg" },
+            {8, "https://news.formulad.com/wordpress/wp-content/uploads/2023/06/LZ-Olsen-Final-728x485.jpg" },
+            {9, "https://news.formulad.com/wordpress/wp-content/uploads/2023/06/Richards-Brutskiy-Final-728x485.jpg" },
+            {10, "https://news.formulad.com/wordpress/wp-content/uploads/2023/06/Tuerck-728x485.jpg" },
+
+        };
         private readonly ApplicationDbContext _db;
         private List<string> _Championships = new List<string> { "RDS", "DMEC", "Formula Drift" };
         public List<string> Championships
@@ -146,7 +161,7 @@ namespace DriftNewsParser.ViewModels
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("img-responsive")[0].GetAttribute("src");
                                 //var newsDescription = doc.GetElementsByClassName("col-md-9")[0].
-                                //GetElementsByClassName("b_list_item")[j];
+                                //GetElementsByClassName("b_list_item")[j].TextContent.Trim();
                                 news.Url = "https://vdrifte.ru" + doc.GetElementsByClassName("col-md-9")[0].
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("_img")[0].GetAttribute("href");
@@ -658,6 +673,73 @@ namespace DriftNewsParser.ViewModels
                         }
                         await _db.SaveChangesAsync();
                         MessageBox.Show("Drivers Updated");
+                    }
+                    else if (SelectedCategory == "News")
+                    {
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        List<NewsFD> NewsList = new List<NewsFD>();
+                        for(int i = 1; i <= 5; i++)
+                        {
+                            var url = $"https://news.formulad.com/page/{i}";
+                            var doc = await context.OpenAsync(url);
+                            for (int j = 0; j < 5; j++)
+                            {
+                                NewsFD news = new NewsFD();
+                                news.Title = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header")[0].
+                                    GetElementsByClassName("entry-title")[0]
+                                    .TextContent.Trim();
+                                news.Url = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header")[0].
+                                    GetElementsByClassName("entry-title")[0].GetElementsByTagName("a")[0].GetAttribute("href");
+                                news.Date = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header-meta")[0].
+                                    GetElementsByClassName("posted-on")[0].GetElementsByClassName("entry-date published updated")[0]
+                                    .TextContent.Trim();
+                                news.Description = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-content")[0].
+                                    GetElementsByTagName("p")[0]
+                                    .TextContent.Trim();
+                                news.Championship = "FD";
+                                NewsList.Add(news);
+
+                            }
+                        }
+                        foreach(var news in NewsList)
+                        {
+                            var doc = await context.OpenAsync(news.Url);
+                            try
+                            {
+                                    news.ImgUrl = doc.GetElementsByTagName("p")[0].GetElementsByTagName("img")[0].GetAttribute("src");
+                            }
+                            catch (Exception ex)
+                            {
+                                if(news.ImgUrl == null)
+                                {
+                                    Random rand = new Random();
+                                    news.ImgUrl = DefaultFdImages[rand.Next(1, 10)];
+                                }
+                            }
+                            
+
+
+                        }
+                        foreach (var news in NewsList)
+                        {
+                            var entity = _db.NewsFD.FirstOrDefault(item => item.Title == news.Title);
+                            if (entity == null)
+                            {
+                                _db.NewsFD.Add(news);
+                            }
+                            else
+                            {
+                                entity.Title = news.Title;
+                                entity.Url = news.Url;
+                                entity.Description = news.Description;
+                                entity.Date = news.Date;
+                                entity.ImgUrl = news.ImgUrl;
+                                entity.Championship = news.Championship;
+
+                            }
+                        }
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("News Added");
                     }
                     break;
                 default:

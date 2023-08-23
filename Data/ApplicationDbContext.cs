@@ -15,5 +15,6 @@ namespace DriftNews.Data
         public DbSet<ResultsRDS> ResultsRDS { get; set; }
         public DbSet<DriversFDPRO> DriversFDPRO { get; set; }
         public DbSet<ResultsFDPRO> ResultsFDPRO { get; set; }
+        public DbSet<NewsFD> NewsFD { get; set; }
     }
 }
