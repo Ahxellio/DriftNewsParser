@@ -191,6 +191,7 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "Results")
                     {
+                        _db.ResultsRDS.ExecuteDelete();
                         List<ResultsRDS> results = new List<ResultsRDS>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         var url = "https://vdrifte.ru/results/rdsgp2023/";
@@ -427,6 +428,7 @@ namespace DriftNewsParser.ViewModels
                 case ("Formula Drift"):
                     if (SelectedCategory == "Results")
                     {
+                        _db.ResultsFDPRO.ExecuteDelete();
                         var url = "https://www.formulad.com/standings/2023/pro";
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         var doc = await context.OpenAsync(url);
@@ -574,6 +576,7 @@ namespace DriftNewsParser.ViewModels
                         }
                         foreach (var result in Results)
                         {
+
                             var entity = _db.ResultsFDPRO.FirstOrDefault(item => item.CarNumber == result.CarNumber);
                             if (entity == null)
                             {
@@ -591,6 +594,7 @@ namespace DriftNewsParser.ViewModels
                                 entity.AllPoints = result.AllPoints;
                                 entity.Place = result.Place;
                             }
+
                         }
                         await _db.SaveChangesAsync();
                         MessageBox.Show("Results Added");
