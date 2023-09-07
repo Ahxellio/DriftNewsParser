@@ -141,6 +141,7 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
+                        _db.NewsRDS.ExecuteDelete();
                         List<NewsRDS> newsList = new List<NewsRDS>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         
@@ -166,6 +167,7 @@ namespace DriftNewsParser.ViewModels
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("_img")[0].GetAttribute("href");
                                 news.Championship = "RDS";
+                                news.Description = "RDSDESCRIPTION";
                                 newsList.Add(news);
                             }
 
@@ -184,6 +186,7 @@ namespace DriftNewsParser.ViewModels
                                 entity.Url = news.Url;
                                 entity.Date = news.Date;
                                 entity.ImgUrl = news.ImgUrl;
+                                entity.Description = news.Description;
                             }
                         }
                         await _db.SaveChangesAsync();
@@ -597,7 +600,7 @@ namespace DriftNewsParser.ViewModels
 
                         }
                         await _db.SaveChangesAsync();
-                        MessageBox.Show("Results Added");
+                        MessageBox.Show("Results Updated");
                     }
                     else if (SelectedCategory == "Pilots")
                     {
@@ -680,6 +683,7 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
+                        _db.NewsFD.ExecuteDelete();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         List<NewsFD> NewsList = new List<NewsFD>();
                         for(int i = 1; i <= 5; i++)
