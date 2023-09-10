@@ -427,7 +427,159 @@ namespace DriftNewsParser.ViewModels
                 case ("DMEC"):
                     if (SelectedCategory == "Pilots")
                     { await _db.SaveChangesAsync(); }
-                    break;
+                    else if (SelectedCategory == "News")
+                    {
+                        _db.NewsDMEC.ExecuteDelete();
+                        List<NewsDMEC> newsList = new List<NewsDMEC>();
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        var url = $"https://driftmasters.gp/news/";
+                        var doc = await context.OpenAsync(url);
+                        NewsDMEC firstNewsDmec = new NewsDMEC();
+                        firstNewsDmec.Url =  doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[0]
+                                .GetElementsByClassName("details")[0]
+                                .GetElementsByTagName("a")[0]
+                                .GetAttribute("href");
+                        firstNewsDmec.Date = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[0].GetElementsByClassName("details")[0]
+                                .GetElementsByClassName("date")[0].TextContent.Trim();
+                        newsList.Add(firstNewsDmec);
+                        for (int i = 1; i < 10; i++)
+                        {
+                            
+                            NewsDMEC news = new NewsDMEC();
+                            news.Url = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[i]
+                                .GetElementsByClassName("details")[0]
+                                .GetElementsByTagName("a")[1]
+                                .GetAttribute("href");
+                            news.Date = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[i].GetElementsByClassName("details")[0]
+                                .GetElementsByClassName("date")[0].TextContent.Trim();
+                            newsList.Add(news);
+                        }
+                        foreach(var news in newsList)
+                        {
+                            var newsProfile = await context.OpenAsync(news.Url);
+                            news.ImgUrl = newsProfile.GetElementsByClassName("thumbnail")[0].GetElementsByTagName("img")[0]
+                                .GetAttribute("src");
+                            news.Title = newsProfile.GetElementsByClassName("header")[0].GetElementsByTagName("h3")[0].TextContent.Trim();
+                            news.Description = newsProfile.GetElementsByClassName("content")[0].GetElementsByTagName("p")[0].TextContent.Trim();
+                            news.Championship = "DMEC";
+                        }
+                        foreach (var news in newsList)
+                        {
+                            var entity = _db.NewsDMEC.FirstOrDefault(item => item.Title == news.Title);
+                            if (entity == null)
+                            {
+                                _db.NewsDMEC.Add(news);
+                            }
+                            else
+                            {
+                                entity.Title = news.Title;
+                                entity.Url = news.Url;
+                                entity.Description = news.Description;
+                                entity.Date = news.Date;
+                                entity.ImgUrl = news.ImgUrl;
+                                entity.Championship = news.Championship;
+
+                            }
+                        }
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("News Updated");
+                    }
+                    else if(SelectedCategory == "Results")
+                    {
+                        _db.ResultsDMEC.ExecuteDelete();
+                        var url = "https://driftmasters.gp/standings/";
+                        var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
+                        var doc = await context.OpenAsync(url);
+                        List<ResultsDMEC> Results = new List<ResultsDMEC>();
+                        for(int i = 0; i < 58; i++)
+                        {
+                            ResultsDMEC result = new ResultsDMEC();
+                            result.Place = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[0].TextContent.Trim();
+                            result.Name = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[1].TextContent.Trim();
+                            result.AllPoints = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[9].TextContent.Trim();
+                            try
+                            {
+                                result.R1 = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[3].TextContent.Trim();
+                                result.R2 = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[4].TextContent.Trim();
+                                result.R3 = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[5].TextContent.Trim();
+                                result.R4 = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[6].TextContent.Trim();
+                                result.R5 = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[7].TextContent.Trim();
+                                result.R6 = doc.GetElementsByClassName("tabcontent")[0].
+                                GetElementsByTagName("table")[0].GetElementsByTagName("tbody")[0].GetElementsByTagName("tr")[i + 1]
+                                .GetElementsByTagName("td")[8].TextContent.Trim();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (result.R1 == null)
+                                {
+                                    result.R1 = "0";
+                                }
+                                else if (result.R2 == null)
+                                {
+                                    result.R2 = "0";
+                                }
+                                else if (result.R3 == null)
+                                {
+                                    result.R3 = "0";
+                                }
+                                else if (result.R4 == null)
+                                {
+                                    result.R4 = "0";
+                                }
+                                else if (result.R5 == null)
+                                {
+                                    result.R5 = "0";
+                                }
+                                else if (result.R6 == null)
+                                {
+                                    result.R6 = "0";
+                                }
+                            }
+                            finally { }
+                            Results.Add(result);
+
+                        }
+                        foreach (var result in Results)
+                        {
+
+                            var entity = _db.ResultsDMEC.FirstOrDefault(item => item.Name == result.Name);
+                            if (entity == null)
+                            {
+                                _db.ResultsDMEC.Add(result);
+                            }
+                            else
+                            {
+                                entity.R1 = result.R1;
+                                entity.R2 = result.R2;
+                                entity.R3 = result.R3;
+                                entity.R4 = result.R4;
+                                entity.R5 = result.R5;
+                                entity.R6 = result.R6;
+                                entity.AllPoints = result.AllPoints;
+                                entity.Place = result.Place;
+                            }
+
+                        }
+                        await _db.SaveChangesAsync();
+                        MessageBox.Show("Drivers Updated");
+                    }
+                        break;
                 case ("Formula Drift"):
                     if (SelectedCategory == "Results")
                     {

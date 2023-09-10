@@ -3,6 +3,7 @@ using DriftNews.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DriftNewsParser.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230910135444_AddNewsDMECTable")]
+    partial class AddNewsDMECTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,52 +260,6 @@ namespace DriftNewsParser.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Races");
-                });
-
-            modelBuilder.Entity("DriftNewsParser.Models.ResultsDMEC", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AllPoints")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Place")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R4")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R5")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R6")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("R7")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ResultsDMEC");
                 });
 
             modelBuilder.Entity("DriftNewsParser.Models.ResultsFDPRO", b =>
