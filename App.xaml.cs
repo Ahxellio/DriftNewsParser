@@ -23,7 +23,7 @@ namespace DriftNewsParser
         internal static void ConfigureServices(HostBuilderContext host, IServiceCollection services) => services
             .AddDatabase(host.Configuration)
             .AddServices()
-            .AddViewModels()
+            //.AddViewModels()
             ;
         [STAThread]
         protected override async void OnStartup(StartupEventArgs e)
