@@ -22,6 +22,7 @@ namespace DriftNewsParser.ViewModels.Base
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+
         }
     }
 }
