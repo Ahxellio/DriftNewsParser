@@ -18,7 +18,7 @@ namespace DriftNewsParser.Models
         [Required]
         public string Url { get; set; }
         [Required]
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
         [Required]
         public string ImgUrl { get; set; }
         [Required]

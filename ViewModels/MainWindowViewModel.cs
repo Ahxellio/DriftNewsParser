@@ -141,7 +141,6 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
-                        _db.News.ExecuteDelete();
                         List<News> newsList = new List<News>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         
@@ -152,9 +151,11 @@ namespace DriftNewsParser.ViewModels
                             for(int j = 0; j < 5; j++)
                             {
                                 News news = new News();
-                                news.Date = doc.GetElementsByClassName("col-md-9")[0].
+                                var date = doc.GetElementsByClassName("col-md-9")[0].
                                 GetElementsByClassName("b_list_item")[j].
-                                GetElementsByClassName("_date helios")[0].TextContent.Trim();
+                                GetElementsByClassName("_date helios")[0].TextContent.Trim().Replace('.', '-');
+                                news.Date = DateTime.ParseExact($"{date}", "dd-MM-yyyy",
+                                       System.Globalization.CultureInfo.InvariantCulture);
                                 news.Title = doc.GetElementsByClassName("col-md-9")[0].
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("_title helios")[0].TextContent.Trim();
@@ -174,7 +175,7 @@ namespace DriftNewsParser.ViewModels
                             
                         }
                         foreach (var news in newsList)
-                        {
+                        { 
                             var entity = _db.News.FirstOrDefault(item => item.Title == news.Title);
                             if (entity == null)
                             {
@@ -186,7 +187,7 @@ namespace DriftNewsParser.ViewModels
                                 entity.Url = news.Url;
                                 entity.Date = news.Date;
                                 entity.ImgUrl = news.ImgUrl;
-                                entity.Description = news.Description;
+                                entity.Championship = news.Championship;
                             }
                         }
                         await _db.SaveChangesAsync();
@@ -429,7 +430,6 @@ namespace DriftNewsParser.ViewModels
                     { await _db.SaveChangesAsync(); }
                     else if (SelectedCategory == "News")
                     {
-                        _db.News.ExecuteDelete();
                         List<News> newsList = new List<News>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         var url = $"https://driftmasters.gp/news/";
@@ -439,8 +439,10 @@ namespace DriftNewsParser.ViewModels
                                 .GetElementsByClassName("details")[0]
                                 .GetElementsByTagName("a")[0]
                                 .GetAttribute("href");
-                        firstNewsDmec.Date = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[0].GetElementsByClassName("details")[0]
+                        var firstNewsDate = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[0].GetElementsByClassName("details")[0]
                                 .GetElementsByClassName("date")[0].TextContent.Trim();
+                        firstNewsDmec.Date = DateTime.Parse($"{firstNewsDate}");
+
                         newsList.Add(firstNewsDmec);
                         for (int i = 1; i < 10; i++)
                         {
@@ -450,8 +452,9 @@ namespace DriftNewsParser.ViewModels
                                 .GetElementsByClassName("details")[0]
                                 .GetElementsByTagName("a")[1]
                                 .GetAttribute("href");
-                            news.Date = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[i].GetElementsByClassName("details")[0]
+                            var date = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[i].GetElementsByClassName("details")[0]
                                 .GetElementsByClassName("date")[0].TextContent.Trim();
+                            news.Date = DateTime.Parse($"{date}");
                             newsList.Add(news);
                         }
                         foreach(var news in newsList)
@@ -474,7 +477,6 @@ namespace DriftNewsParser.ViewModels
                             {
                                 entity.Title = news.Title;
                                 entity.Url = news.Url;
-                                entity.Description = news.Description;
                                 entity.Date = news.Date;
                                 entity.ImgUrl = news.ImgUrl;
                                 entity.Championship = news.Championship;
@@ -835,7 +837,6 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
-                        _db.News.ExecuteDelete();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         List<News> NewsList = new List<News>();
                         for(int i = 1; i <= 5; i++)
@@ -850,9 +851,10 @@ namespace DriftNewsParser.ViewModels
                                     .TextContent.Trim();
                                 news.Url = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header")[0].
                                     GetElementsByClassName("entry-title")[0].GetElementsByTagName("a")[0].GetAttribute("href");
-                                news.Date = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header-meta")[0].
+                                var date = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header-meta")[0].
                                     GetElementsByClassName("posted-on")[0].GetElementsByClassName("entry-date published updated")[0]
                                     .TextContent.Trim();
+                                news.Date = DateTime.Parse($"{date}");
                                 news.Description = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-content")[0].
                                     GetElementsByTagName("p")[0]
                                     .TextContent.Trim();

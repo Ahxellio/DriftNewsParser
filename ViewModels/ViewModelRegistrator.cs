@@ -9,7 +9,7 @@ namespace DriftNewsParser.ViewModels
 {
     static class ViewModelRegistrator
     {
-        //public static IServiceCollection AddViewModels(this IServiceCollection services) => services
-        //    .AddSingleton<MainWindowViewModel>();
+        public static IServiceCollection AddViewModels(this IServiceCollection services) => services
+            .AddSingleton<MainWindowViewModel>();
     }
 }
