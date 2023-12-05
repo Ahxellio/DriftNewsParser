@@ -141,8 +141,8 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
-                        _db.NewsRDS.ExecuteDelete();
-                        List<NewsRDS> newsList = new List<NewsRDS>();
+                        _db.News.ExecuteDelete();
+                        List<News> newsList = new List<News>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         
                         for(int i = 1; i <= 5; i++)
@@ -151,7 +151,7 @@ namespace DriftNewsParser.ViewModels
                             var doc = await context.OpenAsync(url);
                             for(int j = 0; j < 5; j++)
                             {
-                                NewsRDS news = new NewsRDS();
+                                News news = new News();
                                 news.Date = doc.GetElementsByClassName("col-md-9")[0].
                                 GetElementsByClassName("b_list_item")[j].
                                 GetElementsByClassName("_date helios")[0].TextContent.Trim();
@@ -175,10 +175,10 @@ namespace DriftNewsParser.ViewModels
                         }
                         foreach (var news in newsList)
                         {
-                            var entity = _db.NewsRDS.FirstOrDefault(item => item.Title == news.Title);
+                            var entity = _db.News.FirstOrDefault(item => item.Title == news.Title);
                             if (entity == null)
                             {
-                                _db.NewsRDS.Add(news);
+                                _db.News.Add(news);
                             }
                             else
                             {
@@ -429,12 +429,12 @@ namespace DriftNewsParser.ViewModels
                     { await _db.SaveChangesAsync(); }
                     else if (SelectedCategory == "News")
                     {
-                        _db.NewsDMEC.ExecuteDelete();
-                        List<NewsDMEC> newsList = new List<NewsDMEC>();
+                        _db.News.ExecuteDelete();
+                        List<News> newsList = new List<News>();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
                         var url = $"https://driftmasters.gp/news/";
                         var doc = await context.OpenAsync(url);
-                        NewsDMEC firstNewsDmec = new NewsDMEC();
+                        News firstNewsDmec = new News();
                         firstNewsDmec.Url =  doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[0]
                                 .GetElementsByClassName("details")[0]
                                 .GetElementsByTagName("a")[0]
@@ -444,8 +444,8 @@ namespace DriftNewsParser.ViewModels
                         newsList.Add(firstNewsDmec);
                         for (int i = 1; i < 10; i++)
                         {
-                            
-                            NewsDMEC news = new NewsDMEC();
+
+                            News news = new News();
                             news.Url = doc.GetElementsByClassName("content")[0].GetElementsByClassName("news-box")[i]
                                 .GetElementsByClassName("details")[0]
                                 .GetElementsByTagName("a")[1]
@@ -465,10 +465,10 @@ namespace DriftNewsParser.ViewModels
                         }
                         foreach (var news in newsList)
                         {
-                            var entity = _db.NewsDMEC.FirstOrDefault(item => item.Title == news.Title);
+                            var entity = _db.News.FirstOrDefault(item => item.Title == news.Title);
                             if (entity == null)
                             {
-                                _db.NewsDMEC.Add(news);
+                                _db.News.Add(news);
                             }
                             else
                             {
@@ -835,16 +835,16 @@ namespace DriftNewsParser.ViewModels
                     }
                     else if (SelectedCategory == "News")
                     {
-                        _db.NewsFD.ExecuteDelete();
+                        _db.News.ExecuteDelete();
                         var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-                        List<NewsFD> NewsList = new List<NewsFD>();
+                        List<News> NewsList = new List<News>();
                         for(int i = 1; i <= 5; i++)
                         {
                             var url = $"https://news.formulad.com/page/{i}";
                             var doc = await context.OpenAsync(url);
                             for (int j = 0; j < 5; j++)
                             {
-                                NewsFD news = new NewsFD();
+                                News news = new News();
                                 news.Title = doc.GetElementsByTagName("article")[j].GetElementsByClassName("entry-header")[0].
                                     GetElementsByClassName("entry-title")[0]
                                     .TextContent.Trim();
@@ -876,16 +876,14 @@ namespace DriftNewsParser.ViewModels
                                     news.ImgUrl = DefaultFdImages[rand.Next(1, 10)];
                                 }
                             }
-                            
-
 
                         }
                         foreach (var news in NewsList)
                         {
-                            var entity = _db.NewsFD.FirstOrDefault(item => item.Title == news.Title);
+                            var entity = _db.News.FirstOrDefault(item => item.Title == news.Title);
                             if (entity == null)
                             {
-                                _db.NewsFD.Add(news);
+                                _db.News.Add(news);
                             }
                             else
                             {
