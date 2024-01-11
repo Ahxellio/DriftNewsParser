@@ -7,7 +7,7 @@ namespace DriftNews.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-
+            Database.EnsureCreated();
         }
         public DbSet<ResultsDMEC> ResultsDMEC { get; set; }
         public DbSet<Race> Races { get; set; }

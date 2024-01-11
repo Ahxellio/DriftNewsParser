@@ -16,7 +16,7 @@ namespace DriftNewsParser.Data
         public static IServiceCollection AddDatabase(this IServiceCollection services,
             Microsoft.Extensions.Configuration.IConfiguration Configuration) => services.AddDbContext<ApplicationDbContext>(opt=>
             {
-                opt.UseSqlServer(Configuration.GetConnectionString("MSSQL"));
+                opt.UseNpgsql(Configuration.GetConnectionString("PSQL"));
             })
             .AddTransient<DbInitializer>()
             ;

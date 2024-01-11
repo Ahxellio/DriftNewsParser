@@ -15,6 +15,7 @@ namespace DriftNewsParser
             var app = new App();
             app.InitializeComponent();
             app.Run();
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args).ConfigureServices(App.ConfigureServices);
